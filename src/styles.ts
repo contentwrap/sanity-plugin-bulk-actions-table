@@ -37,8 +37,7 @@ export const TableWrapper = styled.div`
   max-height: 100%;
 `;
 
-export const LoadingOverlay = styled.div(({ theme }) => {
-  // @ts-expect-error something
+export const LoadingOverlay = styled.div(({ theme }: { theme: any }) => {
   const { color } = theme.sanity;
   const background = color.muted.default.disabled.muted.bg;
 
@@ -83,8 +82,7 @@ export const TableHeaderText = styled(Text).attrs(() => ({
   font-size: 0.75rem;
 `;
 
-export const Table = styled(TablePrimitive)(({ theme }) => {
-  // @ts-expect-error something
+export const Table = styled(TablePrimitive)(({ theme }: { theme: any }) => {
   const { color } = theme.sanity;
   const borderColor = color.selectable.default.enabled.border;
 

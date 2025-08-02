@@ -6,6 +6,7 @@ import { SanityDocument } from 'sanity';
 
 import { defaultDatetimesObj } from './constants';
 import { ColumnOrder } from './hooks/useStickyStateOrder';
+import { handleDataFetchError } from './utils/errorHandling';
 
 export interface Cursor {
   results: any[];
@@ -73,7 +74,8 @@ function usePaginatedClient({
   // the current result set
   const [results, setResults] = useState<ResultDocument[]>([]);
 
-  // used to force refresh. TODO: consider refactoring this
+  // Refresh mechanism: changing the refreshId triggers useEffect dependencies to re-run
+  // This is a standard React pattern for manual refresh functionality
   const [refreshId, setRefreshId] = useState(nanoid());
   const refresh = useCallback(() => setRefreshId(nanoid()), []);
 
@@ -138,8 +140,7 @@ function usePaginatedClient({
     }
 
     getTotalCount().catch((e) => {
-      // TODO: proper error handling
-      console.warn(e);
+      handleDataFetchError(e, 'getting total count');
     });
 
     return () => {
@@ -174,46 +175,52 @@ function usePaginatedClient({
       // this is a recursive function that will call itself until it reaches the
       // desired page.
       //
-      // TODO: this implementation gets slower with each new page. pagination
-      // is relatively challenging in this context since there could or could
-      // not be a draft. The published version should be ignored to prefer the
-      // draft which makes it hard to know where the current page ends and the
-      // next one begins
-      const getPage = async (start = 0, page = 0): Promise<string[]> => {
-        const end =
-          start +
-          // note: we fetch twice the given page size to consider the cases
-          // where we have to remove half the result set in the case of
-          // duplicate `draft.` document
-          pageSize * 2;
+      // Improved pagination: fetch directly for the target page instead of recursively
+      // fetching all previous pages. This maintains better performance for higher page numbers.
+      const getPage = async (): Promise<string[]> => {
+        // Calculate the starting position for the target page
+        // We multiply by 2 to account for potential draft/published filtering
+        const estimatedStart = targetPage * pageSize * 2;
+        const batchSize = pageSize * 3; // Fetch larger batches to account for filtering
 
-        const pageIds = await client.fetch<string[]>(
-          `*[_type == $type ${searchQuery}]${orderQuery}[$start...$end]._id`,
-          { type, start, end },
-        );
+        let currentStart = estimatedStart;
+        let collectedIds: string[] = [];
+        let attempts = 0;
+        const maxAttempts = 3; // Limit attempts to prevent infinite loops
 
-        const filteredIds = pageIds
-          .map((id, index) => ({ id, index: start + index }))
-          .filter(({ id }) => {
-            // if the id is a draft ID, we want to keep it
-            if (id.startsWith('drafts.')) return true;
+        while (collectedIds.length < pageSize && attempts < maxAttempts) {
+          const pageIds = await client.fetch<string[]>(
+            `*[_type == $type ${searchQuery}]${orderQuery}[$start...$end]._id`,
+            {
+              type,
+              start: currentStart,
+              end: currentStart + batchSize,
+            },
+          );
 
-            // if the published _id exists in `drafts`, then there exists a draft
-            // version of the current document and we should prefer that over the
-            // published version
-            if (drafts.has(id)) return false;
+          if (pageIds.length === 0) break; // No more documents
 
-            return true;
-          })
-          .slice(0, pageSize);
+          const filteredIds = pageIds
+            .filter((id) => {
+              // if the id is a draft ID, we want to keep it
+              if (id.startsWith('drafts.')) return true;
 
-        const ids = filteredIds.map((i) => i.id).map(removeDraftPrefix);
-        if (page >= targetPage) return ids;
+              // if the published _id exists in `drafts`, then there exists a draft
+              // version of the current document and we should prefer that over the
+              // published version
+              if (drafts.has(id)) return false;
 
-        const last = filteredIds[filteredIds.length - 1];
-        if (!last) return [];
+              return true;
+            })
+            .map(removeDraftPrefix);
 
-        return await getPage(last.index + 1, page + 1);
+          collectedIds.push(...filteredIds);
+          currentStart += batchSize;
+          attempts++;
+        }
+
+        // Return only the page size we need
+        return collectedIds.slice(0, pageSize);
       };
 
       const ids = await getPage();
@@ -231,8 +238,7 @@ function usePaginatedClient({
     getPageIds(page)
       .then(setPageIds)
       .catch((e) => {
-        // TODO: proper error handling
-        console.warn(e);
+        handleDataFetchError(e, 'fetching page IDs');
       });
   }, [page, pageSize, type, refreshId, searchQuery, orderQuery]);
 
@@ -335,12 +341,9 @@ function usePaginatedClient({
       );
     }
 
-    // TODO: consider error handling
     getResults().catch((e) => {
-      console.warn(e);
+      handleDataFetchError(e, 'fetching results');
     });
-
-    // TODO: add error handler
     // Listen to changes across the entire type
     const typeQuery = `*[_type == $type]`;
     const subscription = client

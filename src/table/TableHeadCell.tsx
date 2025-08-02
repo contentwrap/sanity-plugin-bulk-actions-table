@@ -8,13 +8,30 @@ import { useBulkActionsTableContext } from '../context';
 import { SelectableField } from '../helpers/getSelectableFields';
 import { CellPrimitive } from './primitives';
 
+// Type for fields that can be either real SelectableField or mock fields for built-in columns
+type TableField =
+  | SelectableField
+  | {
+      fieldPath: string;
+      title: string | undefined;
+      level: number;
+      sortable: boolean;
+      type: string;
+      field: { type: { name: string } };
+    };
+
 interface ExtraProps {
   mode: 'default' | 'ghost' | 'bleed';
   tone?: 'default' | 'primary' | 'positive' | 'caution' | 'critical';
 }
 
-export const TableHeaderButton = styled(Button)(({ theme, disabled }) => {
-  // @ts-expect-error something
+export const TableHeaderButton = styled(Button)(({
+  theme,
+  disabled,
+}: {
+  theme: any;
+  disabled?: boolean;
+}) => {
   const { color } = theme.sanity;
   const buttonColor = color.button.bleed.default.enabled.fg;
 
@@ -27,12 +44,7 @@ export const TableHeaderButton = styled(Button)(({ theme, disabled }) => {
   `;
 });
 
-type TableHeaderField = Pick<
-  SelectableField,
-  'fieldPath' | 'sortable' | 'type' | 'title'
->;
-
-export function TableHeadCell({ field }: { field: TableHeaderField }) {
+export function TableHeadCell({ field }: { field: TableField }) {
   const { orderColumn, setOrderColumn } = useBulkActionsTableContext();
 
   const handleOrder = useCallback(() => {
@@ -61,8 +73,7 @@ export function TableHeadCell({ field }: { field: TableHeaderField }) {
   };
 
   if (orderColumn.key === field.fieldPath) {
-    // @ts-expect-error something
-    extraProps.iconRight =
+    (extraProps as any).iconRight =
       orderColumn.direction === 'asc' ? ChevronUpIcon : ChevronDownIcon;
   }
 

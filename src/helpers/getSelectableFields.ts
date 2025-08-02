@@ -40,11 +40,14 @@ function getInnerFields(
       return [...acc, child];
     }
 
-    // @ts-ignore
-    if (field.type?.fields?.length) {
+    // Check if this is an object type with nested fields
+    if (
+      'fields' in field.type &&
+      Array.isArray(field.type.fields) &&
+      field.type.fields.length > 0
+    ) {
       child.sortable = false;
-      // @ts-ignore
-      const children = field.type.fields;
+      const children = field.type.fields as ObjectField[];
       const innerFields = getInnerFields(children, fieldPath, level + 1);
 
       if (innerFields.length) {
@@ -85,11 +88,14 @@ export function getSelectableFields(
       return [...acc, parent];
     }
 
-    // @ts-ignore
-    if (field.type?.fields?.length) {
+    // Check if this is an object type with nested fields
+    if (
+      'fields' in field.type &&
+      Array.isArray(field.type.fields) &&
+      field.type.fields.length > 0
+    ) {
       parent.sortable = false;
-      // @ts-ignore
-      const children = field.type.fields;
+      const children = field.type.fields as ObjectField[];
       const innerFields = getInnerFields(children, fieldPath, 1);
 
       if (innerFields.length) {

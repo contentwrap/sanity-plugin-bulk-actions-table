@@ -5,6 +5,7 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useBulkActionsTableContext } from '../context';
+import { isValidSearchQuery, sanitizeGroqInput } from '../utils/sanitization';
 
 const SearchForm = styled.form`
   /* margin: 0.5rem; */
@@ -17,8 +18,13 @@ function SearchField() {
     useBulkActionsTableContext();
 
   const debouncedOnSearch = useCallback(
-    // @ts-ignore
-    debounce(paginatedClient.setUserQuery, 200),
+    debounce((query: string) => {
+      // Validate and sanitize the search query before sending it
+      if (isValidSearchQuery(query) || query.length === 0) {
+        const sanitizedQuery = sanitizeGroqInput(query);
+        paginatedClient.setUserQuery(sanitizedQuery);
+      }
+    }, 200),
     [paginatedClient.setUserQuery],
   );
 

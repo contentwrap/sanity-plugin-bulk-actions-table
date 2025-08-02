@@ -89,10 +89,11 @@ function ColumnSelector({
   onToggleColumnSelect,
 }: Props) {
   const selectableFields = useMemo(
-    // @ts-ignore
-    () => getSelectableFields(schemaType.fields),
-    // @ts-ignore
-    [schemaType.fields],
+    () =>
+      getSelectableFields(
+        'fields' in schemaType ? (schemaType.fields as any[]) : [],
+      ),
+    [schemaType],
   );
 
   return (
@@ -146,7 +147,6 @@ function ColumnSelector({
           <MenuDivider />
           {selectableFields.map(
             ({ fieldPath, title, level }: SelectableField, key: number) => {
-              // @ts-ignore
               const hasChildren =
                 key + 1 < selectableFields.length &&
                 selectableFields[key + 1].level > level;

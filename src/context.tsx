@@ -1,10 +1,19 @@
-import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { ObjectField, SchemaType } from 'sanity';
 
 import { Options, orderColumnDefault, rowsPerPage } from './constants';
 import { ColumnOrder, useStickyStateOrder } from './hooks/useStickyStateOrder';
 import { useStickyStateSet } from './hooks/useStickyStateSet';
 import usePaginatedClient, { PaginatedClient } from './usePaginatedClient';
+import { isValidSearchQuery, sanitizeGroqInput } from './utils/sanitization';
 
 const BulkActionsTableContext = createContext({
   options: {} as Options,
@@ -18,7 +27,7 @@ const BulkActionsTableContext = createContext({
   orderColumn: orderColumnDefault as ColumnOrder,
   setOrderColumn: (obj: ColumnOrder) => {},
   selectedIds: new Set<string>(),
-  setSelectedIds: (set: Set<string>) => {},
+  setSelectedIds: (() => {}) as Dispatch<SetStateAction<Set<string>>>,
   isSelectState: false,
   setIsSelectState: (bool: boolean) => {},
   paginatedClient: {} as PaginatedClient,
@@ -58,14 +67,35 @@ export const BulkActionsTableProvider = ({
       ('fields' in schemaType ? schemaType.fields : []).reduce(
         (agg, field: ObjectField) => {
           const name = field.name as string;
+
+          // Validate field name for security
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+            return agg; // Skip invalid field names
+          }
+
           if (field?.type?.jsonType === 'string') {
-            agg.push((query: string) => `${name} match "${query}*"`);
+            agg.push((query: string) => {
+              const sanitizedQuery = sanitizeGroqInput(query);
+              return sanitizedQuery
+                ? `${name} match "${sanitizedQuery}*"`
+                : 'true';
+            });
           }
           if (field?.type?.name === 'slug') {
-            agg.push((query: string) => `${name}.current match "${query}*"`);
+            agg.push((query: string) => {
+              const sanitizedQuery = sanitizeGroqInput(query);
+              return sanitizedQuery
+                ? `${name}.current match "${sanitizedQuery}*"`
+                : 'true';
+            });
           }
           if (field?.type?.name === 'number') {
-            agg.push((query: string) => `string(${name}) match "${query}*"`);
+            agg.push((query: string) => {
+              const sanitizedQuery = sanitizeGroqInput(query);
+              return sanitizedQuery
+                ? `string(${name}) match "${sanitizedQuery}*"`
+                : 'true';
+            });
           }
           return agg;
         },

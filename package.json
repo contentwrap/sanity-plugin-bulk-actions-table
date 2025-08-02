@@ -13,7 +13,7 @@
     "url": "git+https://github.com/contentwrap/sanity-plugin-bulk-actions-table.git"
   },
   "homepage": "https://github.com/contentwrap/sanity-plugin-bulk-actions-table#readme",
-    "bugs": {
+  "bugs": {
     "url": "https://github.com/contentwrap/sanity-plugin-bulk-actions-table/issues"
   },
   "license": "MIT",

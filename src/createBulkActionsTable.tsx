@@ -78,6 +78,18 @@ interface BulkActionsTableProps {
   options: Options;
 }
 
+// Type for fields that can be either real SelectableField or mock fields for built-in columns
+type TableField =
+  | SelectableField
+  | {
+      fieldPath: string;
+      title: string | undefined;
+      level: number;
+      sortable: boolean;
+      type: string;
+      field: { type: { name: string } };
+    };
+
 const nonSchemaFields = defaultDatetimeFields.map(
   ({ key, title, sortable }) => ({
     fieldPath: key,
@@ -85,6 +97,7 @@ const nonSchemaFields = defaultDatetimeFields.map(
     field: { type: { name: key } },
     level: 0,
     sortable,
+    type: key, // Add the missing type property
   }),
 );
 
@@ -207,8 +220,7 @@ const TheTable = () => {
   const documentsList = documentsListRef.current;
 
   const throttledColumn = useCallback(
-    // @ts-ignore
-    throttle((entries) => {
+    throttle((entries: ResizeObserverEntry[]) => {
       if (!documentsList) {
         return;
       }
@@ -263,7 +275,7 @@ const TheTable = () => {
     [schemaType, selectedColumns],
   );
 
-  const fields = [...visibleNonSchemaFields, ...selectableFields];
+  const fields: TableField[] = [...visibleNonSchemaFields, ...selectableFields];
 
   const atLeastOneSelected = paginatedClient.results.some((i) =>
     selectedIds.has(i._normalizedId),
@@ -283,9 +295,8 @@ const TheTable = () => {
                   type="checkbox"
                   checked={allSelected}
                   onChange={() => {
-                    // @ts-ignore
-                    setSelectedIds((set) => {
-                      const nextSet = new Set(set);
+                    setSelectedIds((prevSet: Set<string>) => {
+                      const nextSet = new Set(prevSet);
                       if (allSelected) {
                         for (const result of paginatedClient.results || []) {
                           nextSet.delete(result._normalizedId);
@@ -316,6 +327,8 @@ const TheTable = () => {
                 fieldPath: '_document',
                 type: 'string',
                 sortable: false,
+                field: { type: { name: 'string' } } as any,
+                level: 0,
               }}
             />
             <TableHeadCell
@@ -324,10 +337,11 @@ const TheTable = () => {
                 fieldPath: '_status',
                 type: 'string',
                 sortable: false,
+                field: { type: { name: 'string' } } as any,
+                level: 0,
               }}
             />
-            {/* @ts-ignore */}
-            {fields.map((field: SelectableField) => (
+            {fields.map((field: TableField) => (
               <TableHeadCell key={field.fieldPath} field={field} />
             ))}
             <ColumnSelectHeadCell>
@@ -353,9 +367,8 @@ const TheTable = () => {
         <tbody>
           {paginatedClient.results.map((item) => {
             const toggleSelect = () => {
-              // @ts-ignore
-              setSelectedIds((set) => {
-                const nextSet = new Set(set);
+              setSelectedIds((prevSet: Set<string>) => {
+                const nextSet = new Set(prevSet);
                 if (selectedIds.has(item._normalizedId)) {
                   nextSet.delete(item._normalizedId);
                 } else {
@@ -413,13 +426,6 @@ const TheTable = () => {
                     schemaType={schemaType}
                     layout="default"
                     value={item}
-                    // @ts-ignore
-                    styles={{
-                      title: 'preview-title',
-                      subtitle: 'preview-subtitle',
-                      root: 'preview-root',
-                      status: 'preview-status',
-                    }}
                   />
                 </CellPrimitive>
                 <CellPrimitive as="td">
@@ -437,8 +443,7 @@ const TheTable = () => {
                       : item._status}
                   </StatusBadge>
                 </CellPrimitive>
-                {/* @ts-ignore */}
-                {fields.map((field: SelectableField) => (
+                {fields.map((field: TableField) => (
                   <Cell
                     key={field.fieldPath}
                     field={field.field}
@@ -589,17 +594,56 @@ const BulkActionsTableParent = (props: BulkActionsTableProps) => {
 function createBulkActionsTable(
   config: CreateBulkActionsTableConfig,
 ): ListItem {
-  if (!config.type || !config.context || !config.S) {
+  // Validate required parameters
+  if (!config) {
     throw new Error(`
-      type, context and S (StructureBuilder) must be provided.
-      context and S are available when configuring structure.
+      Configuration object is required.
       Example: createBulkActionsTable({type: 'category', S, context})
     `);
   }
 
-  const { type, context, S, title, icon } = config;
+  if (!config.type || typeof config.type !== 'string') {
+    throw new Error(`
+      'type' parameter is required and must be a string.
+      The type should match a document schema type in your Sanity project.
+      Example: createBulkActionsTable({type: 'post', S, context})
+    `);
+  }
+
+  if (!config.context) {
+    throw new Error(`
+      'context' parameter is required.
+      This should be the ConfigContext provided by the structure resolver.
+      Example: structure: (S, context) => createBulkActionsTable({type: 'post', S, context})
+    `);
+  }
+
+  if (!config.S) {
+    throw new Error(`
+      'S' (StructureBuilder) parameter is required.
+      This should be the StructureBuilder provided by the structure resolver.
+      Example: structure: (S, context) => createBulkActionsTable({type: 'post', S, context})
+    `);
+  }
+
+  // Validate optional parameters
+  if (config.title !== undefined && typeof config.title !== 'string') {
+    throw new Error(`
+      'title' parameter must be a string when provided.
+      Example: createBulkActionsTable({type: 'post', S, context, title: 'Blog Posts'})
+    `);
+  }
+
+  if (config.apiVersion !== undefined && typeof config.apiVersion !== 'string') {
+    throw new Error(`
+      'apiVersion' parameter must be a string when provided.
+      Example: createBulkActionsTable({type: 'post', S, context, apiVersion: '2024-03-12'})
+    `);
+  }
+
+  const { type, context, S, title, icon, apiVersion = '2024-03-12' } = config;
   const { schema, getClient } = context;
-  const client = getClient({ apiVersion: '2024-03-12' });
+  const client = getClient({ apiVersion });
 
   const refresh = createEmitter();
 

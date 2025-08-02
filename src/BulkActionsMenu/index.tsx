@@ -21,6 +21,7 @@ import { Preview } from 'sanity';
 import styled from 'styled-components';
 
 import { useBulkActionsTableContext } from '../context';
+import { handleBulkOperationError } from '../utils/errorHandling';
 
 const Content = styled.div`
   padding: 0 1rem;
@@ -127,7 +128,7 @@ function BulkActionsMenu({ onDelete }: Props) {
 
       setDialogMode(null);
     } catch (e) {
-      console.warn(e);
+      handleBulkOperationError(e, 'discard changes', Array.from(selectedIds));
 
       toast.push({
         title: 'Error Bulk Discarding Changes',
@@ -176,7 +177,7 @@ function BulkActionsMenu({ onDelete }: Props) {
       });
       setSelectedIds(new Set());
     } catch (e) {
-      console.warn(e);
+      handleBulkOperationError(e, 'unpublish', Array.from(selectedIds));
 
       toast.push({
         title: 'Error Bulk Unpublishing',
@@ -230,7 +231,7 @@ function BulkActionsMenu({ onDelete }: Props) {
       });
       setSelectedIds(new Set());
     } catch (e) {
-      console.warn(e);
+      handleBulkOperationError(e, 'publish', Array.from(selectedIds));
 
       toast.push({
         title: 'Error Bulk Publishing',
@@ -278,7 +279,7 @@ function BulkActionsMenu({ onDelete }: Props) {
 
       onDelete();
     } catch (e) {
-      console.warn(e);
+      handleBulkOperationError(e, 'delete', Array.from(selectedIds));
 
       toast.push({
         title: 'Error Bulk Deleting',
@@ -328,7 +329,7 @@ function BulkActionsMenu({ onDelete }: Props) {
             />
             <MenuItem
               className="prevent-nav"
-              text="Discard pending changes"
+              text="Discard staged changes"
               icon={ResetIcon}
               onClick={() => setDialogMode('discard_changes')}
             />

@@ -26,12 +26,11 @@ function formatDatetime(
   const locale = navigator.language || 'en-US'; // Get the user's locale
   const timeOptions = includeTime
     ? {
-        hour: 'numeric',
-        minute: 'numeric',
+        hour: 'numeric' as const,
+        minute: 'numeric' as const,
         hour12: true,
       }
     : {};
-  // @ts-ignore
   return new Date(value).toLocaleString(locale, {
     year: 'numeric',
     month: 'numeric',
@@ -130,13 +129,6 @@ function Cell({ field, fieldPath, value }: Props) {
                 value={value}
                 layout="default"
                 schemaType={field.type as SchemaType}
-                // @ts-ignore
-                styles={{
-                  title: 'preview-title',
-                  subtitle: 'preview-subtitle',
-                  root: 'preview-root',
-                  status: 'preview-status',
-                }}
               />
             ) : (
               '-'
