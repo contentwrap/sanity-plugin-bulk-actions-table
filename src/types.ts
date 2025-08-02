@@ -43,8 +43,8 @@ export interface CreateBulkActionsTableConfig {
   /**
    * API version for GROQ queries
    * If not provided, will use the version from your Sanity client configuration
+   * Defaults to using client's configured API version
    * @example '2024-03-12', '2023-05-03'
-   * @default Uses client's configured API version
    */
   apiVersion?: string;
 }

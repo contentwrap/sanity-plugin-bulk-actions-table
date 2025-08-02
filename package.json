@@ -1,12 +1,16 @@
 {
   "name": "sanity-plugin-bulk-actions-table",
   "version": "1.0.0",
-  "description": "Sanity plugin to create bulk actions table",
+  "description": "A powerful table view plugin for Sanity Studio v3/v4 with bulk actions, column selection, and document management capabilities",
   "keywords": [
     "sanity",
     "sanity-plugin",
-    "sanity table",
-    "sanity bulk actions"
+    "sanity-studio",
+    "sanity-v3",
+    "sanity-bulk-actions",
+    "sanity-table-view",
+    "sanity-document-management",
+    "sanity-structure-tool"
   ],
   "repository": {
     "type": "git",
