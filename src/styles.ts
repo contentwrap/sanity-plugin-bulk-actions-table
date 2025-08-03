@@ -4,10 +4,14 @@ import styled, { css, keyframes } from 'styled-components';
 
 import { CellPrimitive, TablePrimitive } from './table/primitives';
 
+const COLUMN_SELECTOR_WIDTH = '41px';
+
 export const Container = styled.div`
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const StatusBadge = styled(Badge)`
@@ -30,11 +34,12 @@ export const StatusBadge = styled(Badge)`
 `;
 
 export const TableWrapper = styled.div`
-  // flex: 1 1 auto;
   overflow: auto;
   position: relative;
-  padding-bottom: 83px;
-  max-height: 100%;
+  padding-bottom: 41px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
 `;
 
 export const LoadingOverlay = styled.div(({ theme }: { theme: any }) => {
@@ -162,16 +167,20 @@ export const Table = styled(TablePrimitive)(({ theme }: { theme: any }) => {
   `;
 });
 
+export const ColumnSelectCol = styled.col`
+  width: ${COLUMN_SELECTOR_WIDTH};
+`;
+
 export const ColumnSelectHeadCell = styled(CellPrimitive).attrs(() => ({
   as: 'th',
 }))`
-  width: 41px;
+  width: ${COLUMN_SELECTOR_WIDTH};
 `;
 
 export const ColumnSelectBodyCell = styled(CellPrimitive).attrs(() => ({
   as: 'td',
 }))`
-  width: 41px;
+  width: ${COLUMN_SELECTOR_WIDTH};
 `;
 
 export const CheckboxCellTh = styled(CellPrimitive).attrs(() => ({

@@ -2,6 +2,7 @@
 .eslintignore
 .eslintrc.js
 .prettierrc.json
+.prettierignore
 package.config.ts
 tsconfig.*.json
 v2-incompatible.js

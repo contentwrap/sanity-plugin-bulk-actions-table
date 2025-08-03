@@ -53,12 +53,12 @@ Add the bulk actions table to your `sanity.config.ts` file using the structure c
 
 ```typescript
 import { defineConfig } from 'sanity';
-import { structureTool } from 'sanity/structure';
 import { createBulkActionsTable } from 'sanity-plugin-bulk-actions-table';
+import { structureTool } from 'sanity/structure';
 
 export default defineConfig({
   // ... your other configuration
-  
+
   plugins: [
     structureTool({
       structure: (S, context) => {
@@ -90,6 +90,7 @@ For larger projects, you can organize your structure in a separate file:
 // sanity.config.ts
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+
 import { structure } from './structure';
 
 export default defineConfig({
@@ -102,8 +103,8 @@ export default defineConfig({
 
 ```typescript
 // structure.ts
-import type { StructureResolver } from 'sanity/structure';
 import { createBulkActionsTable } from 'sanity-plugin-bulk-actions-table';
+import type { StructureResolver } from 'sanity/structure';
 
 export const structure: StructureResolver = (S, context) =>
   S.list()
@@ -136,14 +137,14 @@ interface CreateBulkActionsTableConfig {
 
 #### Configuration Reference
 
-| Parameter | Type | Required | Default | Description | Example |
-|-----------|------|----------|---------|-------------|---------|
-| `type` | `string` | ✅ Yes | - | Document schema type name to manage in the table | `'post'`, `'page'`, `'product'` |
-| `S` | `StructureBuilder` | ✅ Yes | - | Structure builder instance from structure resolver | Automatically provided by Sanity |
-| `context` | `ConfigContext` | ✅ Yes | - | Configuration context with client and schema | Automatically provided by Sanity |
-| `title` | `string` | ❌ No | Document type name | Custom title for Studio navigation | `'Blog Posts'`, `'Product Catalog'` |
-| `icon` | `ComponentType \| null \| undefined` | ❌ No | Default table icon | React component for navigation icon | `DocumentIcon`, `FolderIcon` |
-| `apiVersion` | `string` | ❌ No | Client's API version | GROQ API version for queries | `'2024-03-12'`, `'2023-05-03'` |
+| Parameter    | Type                                 | Required | Default              | Description                                        | Example                             |
+| ------------ | ------------------------------------ | -------- | -------------------- | -------------------------------------------------- | ----------------------------------- |
+| `type`       | `string`                             | ✅ Yes   | -                    | Document schema type name to manage in the table   | `'post'`, `'page'`, `'product'`     |
+| `S`          | `StructureBuilder`                   | ✅ Yes   | -                    | Structure builder instance from structure resolver | Automatically provided by Sanity    |
+| `context`    | `ConfigContext`                      | ✅ Yes   | -                    | Configuration context with client and schema       | Automatically provided by Sanity    |
+| `title`      | `string`                             | ❌ No    | Document type name   | Custom title for Studio navigation                 | `'Blog Posts'`, `'Product Catalog'` |
+| `icon`       | `ComponentType \| null \| undefined` | ❌ No    | Default table icon   | React component for navigation icon                | `DocumentIcon`, `FolderIcon`        |
+| `apiVersion` | `string`                             | ❌ No    | Client's API version | GROQ API version for queries                       | `'2024-03-12'`, `'2023-05-03'`      |
 
 #### Type Definitions
 
@@ -314,7 +315,7 @@ Seamless integration with Sanity's draft system:
 
 ## Acknowledgments
 
-This plugin is built upon the excellent foundation created by **[Rico Kahler](https://github.com/ricokahler)** with the original [Sanity Super Pane](https://github.com/ricokahler/sanity-super-pane) plugin. 
+This plugin is built upon the excellent foundation created by **[Rico Kahler](https://github.com/ricokahler)** with the original [Sanity Super Pane](https://github.com/ricokahler/sanity-super-pane) plugin.
 
 The original plugin provided innovative bulk action capabilities for Sanity Studio v2, but was not compatible with Sanity Studio v3/v4. This project forks and modernizes that work while maintaining the core functionality that made the original so valuable.
 

@@ -51,13 +51,14 @@ import {
   CheckboxCellTh,
   CheckboxFacade,
   ColumnSelectBodyCell,
+  ColumnSelectCol,
   ColumnSelectHeadCell,
   Container,
   HiddenCheckbox,
   LoadingOverlay,
   LoadingSpinner,
   StatusBadge,
-  Table,
+  Table as StyledTable,
   TableWrapper,
 } from './styles';
 import Cell from './table/Cell';
@@ -201,7 +202,7 @@ const ActionRow = () => {
   );
 };
 
-const TheTable = () => {
+const Table = () => {
   const { navigateIntent, groupIndex, routerPanesState } = usePaneRouter();
   const openedDocumentId = routerPanesState[groupIndex + 1]?.[0]?.id || null;
 
@@ -287,7 +288,16 @@ const TheTable = () => {
 
   return (
     <TableWrapper>
-      <Table ref={documentsListRef}>
+      <StyledTable ref={documentsListRef}>
+        <colgroup>
+          {isSelectState && <col />}
+          <col />
+          <col />
+          {fields.map((field) => (
+            <col key={field.fieldPath} />
+          ))}
+          <ColumnSelectCol />
+        </colgroup>
         <TableHeadPrimitive tone="default">
           <RowPrimitive>
             {isSelectState && (
@@ -457,7 +467,7 @@ const TheTable = () => {
             );
           })}
         </tbody>
-      </Table>
+      </StyledTable>
     </TableWrapper>
   );
 };
@@ -578,7 +588,7 @@ const BulkActionsTableParent = (props: BulkActionsTableProps) => {
           <Container ref={containerRef}>
             <ActionRow />
             <LoadingState />
-            <TheTable />
+            <Table />
             <NoResultsState />
             <Footer />
           </Container>
@@ -635,7 +645,10 @@ function createBulkActionsTable(
     `);
   }
 
-  if (config.apiVersion !== undefined && typeof config.apiVersion !== 'string') {
+  if (
+    config.apiVersion !== undefined &&
+    typeof config.apiVersion !== 'string'
+  ) {
     throw new Error(`
       'apiVersion' parameter must be a string when provided.
       Example: createBulkActionsTable({type: 'post', S, context, apiVersion: '2024-03-12'})
