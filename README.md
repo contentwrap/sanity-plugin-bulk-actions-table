@@ -11,7 +11,7 @@
 
   <br>
   <br>
-  <img src="README.gif" alt="Bulk Actions Table Demo" />
+  <img src="demo.gif" alt="Bulk Actions Table Demo" />
 </div>
 
 ---

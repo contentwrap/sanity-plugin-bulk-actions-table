@@ -20,3 +20,7 @@ docs/
 *.png
 *.jpg
 *.jpeg
+
+# Source maps (exclude from production)
+*.map
+**/*.map

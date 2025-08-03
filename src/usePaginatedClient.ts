@@ -8,14 +8,6 @@ import { defaultDatetimesObj } from './constants';
 import { ColumnOrder } from './hooks/useStickyStateOrder';
 import { handleDataFetchError } from './utils/errorHandling';
 
-export interface Cursor {
-  results: any[];
-  nextPage: () => Promise<Cursor>;
-  previousPage: () => Promise<Cursor>;
-  totalPages: number;
-  page: number;
-}
-
 const removeDraftPrefix = (s: string) =>
   s.startsWith('drafts.') ? s.substring('drafts.'.length) : s;
 

@@ -21,7 +21,8 @@ import {
 } from '@sanity/ui';
 import { buildTheme } from '@sanity/ui/theme';
 import classNames from 'classnames';
-import { get, throttle } from 'lodash';
+import get from 'lodash.get';
+import throttle from 'lodash.throttle';
 import pluralize, { singular } from 'pluralize';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Preview } from 'sanity';

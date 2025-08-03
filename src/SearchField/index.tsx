@@ -1,6 +1,6 @@
 import { SearchIcon } from '@sanity/icons';
-import { Box, TextInput } from '@sanity/ui';
-import { debounce } from 'lodash';
+import { TextInput } from '@sanity/ui';
+import debounce from 'lodash.debounce';
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -8,7 +8,6 @@ import { useBulkActionsTableContext } from '../context';
 import { isValidSearchQuery, sanitizeGroqInput } from '../utils/sanitization';
 
 const SearchForm = styled.form`
-  /* margin: 0.5rem; */
   display: flex;
   gap: 0.5rem;
 `;

@@ -13,7 +13,7 @@ import { Options, orderColumnDefault, rowsPerPage } from './constants';
 import { ColumnOrder, useStickyStateOrder } from './hooks/useStickyStateOrder';
 import { useStickyStateSet } from './hooks/useStickyStateSet';
 import usePaginatedClient, { PaginatedClient } from './usePaginatedClient';
-import { isValidSearchQuery, sanitizeGroqInput } from './utils/sanitization';
+import { sanitizeGroqInput } from './utils/sanitization';
 
 const BulkActionsTableContext = createContext({
   options: {} as Options,
