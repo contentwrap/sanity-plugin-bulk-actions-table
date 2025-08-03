@@ -51,7 +51,6 @@ import {
   CheckboxCellTh,
   CheckboxFacade,
   ColumnSelectBodyCell,
-  ColumnSelectCol,
   ColumnSelectHeadCell,
   Container,
   HiddenCheckbox,
@@ -289,15 +288,6 @@ const Table = () => {
   return (
     <TableWrapper>
       <StyledTable ref={documentsListRef}>
-        <colgroup>
-          {isSelectState && <col />}
-          <col />
-          <col />
-          {fields.map((field) => (
-            <col key={field.fieldPath} />
-          ))}
-          <ColumnSelectCol />
-        </colgroup>
         <TableHeadPrimitive tone="default">
           <RowPrimitive>
             {isSelectState && (

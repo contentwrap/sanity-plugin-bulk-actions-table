@@ -167,10 +167,6 @@ export const Table = styled(TablePrimitive)(({ theme }: { theme: any }) => {
   `;
 });
 
-export const ColumnSelectCol = styled.col`
-  width: ${COLUMN_SELECTOR_WIDTH};
-`;
-
 export const ColumnSelectHeadCell = styled(CellPrimitive).attrs(() => ({
   as: 'th',
 }))`
