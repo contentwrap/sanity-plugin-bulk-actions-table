@@ -14,6 +14,7 @@ import { SchemaType } from 'sanity';
 import styled from 'styled-components';
 
 import { defaultDatetimeFields } from '../constants';
+import { IndeterminateIndicator } from '../styles';
 import {
   SelectableField,
   getSelectableFields,
@@ -156,12 +157,12 @@ function ColumnSelector({
                   key={fieldPath}
                   padding={0}
                   pressed={hasChildren}
-                  // disabled={hasChildren}
+                  disabled={hasChildren}
                   style={{ paddingLeft: level * 10 }}
                 >
                   <Label htmlFor={fieldPath}>
                     <ColumnMenuFlex align="center" gap={1}>
-                      {isSelected ? <CheckmarkIcon /> : <ColumnBox />}
+                      {isSelected ? <CheckmarkIcon /> : hasChildren ? <IndeterminateIndicator>—</IndeterminateIndicator> : <ColumnBox />}
                       <MenuItemText>{title}</MenuItemText>
                     </ColumnMenuFlex>
                     <HiddenCheckbox

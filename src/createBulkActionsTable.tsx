@@ -22,9 +22,8 @@ import {
 import { buildTheme } from '@sanity/ui/theme';
 import classNames from 'classnames';
 import get from 'lodash.get';
-import throttle from 'lodash.throttle';
 import pluralize, { singular } from 'pluralize';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { Preview } from 'sanity';
 import { ListItem, usePaneRouter } from 'sanity/structure';
 
@@ -47,6 +46,7 @@ import {
   getSelectableFields,
 } from './helpers/getSelectableFields';
 import {
+  COLUMN_SELECTOR_WIDTH,
   CheckboxCellTd,
   CheckboxCellTh,
   CheckboxFacade,
@@ -216,49 +216,7 @@ const Table = () => {
     paginatedClient,
   } = useBulkActionsTableContext();
 
-  // const tableId = "bulk-actions-table-table";
   const documentsListRef = useRef<HTMLDivElement | null>(null);
-  const documentsList = documentsListRef.current;
-
-  const throttledColumn = useCallback(
-    throttle((entries: ResizeObserverEntry[]) => {
-      if (!documentsList) {
-        return;
-      }
-      for (let entry of entries) {
-        const width = entry.contentRect.width;
-        documentsList.classList.remove(
-          'hide-columns-4',
-          'hide-columns-5',
-          'hide-columns-6',
-          'hide-columns-7',
-        );
-
-        if (width < 400) {
-          documentsList.classList.add('hide-columns-4');
-        } else if (width < 500) {
-          documentsList.classList.add('hide-columns-5');
-        } else if (width < 600) {
-          documentsList.classList.add('hide-columns-6');
-        } else if (width < 700) {
-          documentsList.classList.add('hide-columns-7');
-        }
-      }
-    }, 300),
-    [documentsList],
-  );
-
-  useEffect(() => {
-    const observer = new ResizeObserver(throttledColumn);
-    if (documentsList) {
-      observer.observe(documentsList);
-    }
-    return () => {
-      if (documentsList) {
-        observer.unobserve(documentsList);
-      }
-    };
-  }, [documentsList]);
 
   const visibleNonSchemaFields = useMemo(
     () =>
@@ -286,8 +244,17 @@ const Table = () => {
   );
 
   return (
-    <TableWrapper>
+    <TableWrapper hasResults={!!paginatedClient.results.length}>
       <StyledTable ref={documentsListRef}>
+        <colgroup>
+          {isSelectState && <col />}
+          <col />
+          <col />
+          {fields.map((field: TableField) => (
+            <col key={field.fieldPath} />
+          ))}
+          <col style={{ width: COLUMN_SELECTOR_WIDTH }} />
+        </colgroup>
         <TableHeadPrimitive tone="default">
           <RowPrimitive>
             {isSelectState && (

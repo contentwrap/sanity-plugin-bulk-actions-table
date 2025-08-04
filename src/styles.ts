@@ -1,10 +1,10 @@
 import { SpinnerIcon } from '@sanity/icons';
-import { Badge, Text } from '@sanity/ui';
+import { Badge } from '@sanity/ui';
 import styled, { css, keyframes } from 'styled-components';
 
 import { CellPrimitive, TablePrimitive } from './table/primitives';
 
-const COLUMN_SELECTOR_WIDTH = '41px';
+export const COLUMN_SELECTOR_WIDTH = '41px';
 
 export const Container = styled.div`
   height: 100%;
@@ -33,13 +33,23 @@ export const StatusBadge = styled(Badge)`
   }
 `;
 
-export const TableWrapper = styled.div`
-  overflow: auto;
-  position: relative;
-  padding-bottom: 41px;
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
+export const TableWrapper = styled.div<{ hasResults: boolean }>`
+  container-type: inline-size;
+  ${({ hasResults }) =>
+    hasResults
+      ? css`
+          overflow: auto;
+          position: relative;
+          padding-bottom: 41px;
+          flex-grow: 1;
+          flex-shrink: 1;
+          flex-basis: 0;
+        `
+      : css`
+          overflow: auto;
+          position: relative;
+          padding-bottom: 41px;
+        `}
 `;
 
 export const LoadingOverlay = styled.div(({ theme }: { theme: any }) => {
@@ -81,35 +91,77 @@ export const LoadingSpinner = styled(SpinnerIcon)`
   animation: ${spin} 1500ms linear infinite;
 `;
 
-export const TableHeaderText = styled(Text).attrs(() => ({
-  weight: 'semibold',
-}))`
-  font-size: 0.75rem;
-`;
-
 export const Table = styled(TablePrimitive)(({ theme }: { theme: any }) => {
   const { color } = theme.sanity;
   const borderColor = color.selectable.default.enabled.border;
 
   return css`
-    &.hide-columns-4 th:nth-child(n + 4),
-    &.hide-columns-4 td:nth-child(n + 4) {
-      display: none;
+    /* Progressive width-based column hiding */
+    @container (max-width: 600px) {
+      col:nth-child(n + 6),
+      th:nth-child(n + 6),
+      td:nth-child(n + 6) {
+        display: none;
+      }
     }
 
-    &.hide-columns-5 th:nth-child(n + 5),
-    &.hide-columns-5 td:nth-child(n + 5) {
-      display: none;
+    @container (max-width: 500px) {
+      col:nth-child(n + 5),
+      th:nth-child(n + 5),
+      td:nth-child(n + 5) {
+        display: none;
+      }
     }
 
-    &.hide-columns-6 th:nth-child(n + 6),
-    &.hide-columns-6 td:nth-child(n + 6) {
-      display: none;
+    @container (max-width: 400px) {
+      col:nth-child(n + 4),
+      th:nth-child(n + 4),
+      td:nth-child(n + 4) {
+        display: none;
+      }
     }
 
-    &.hide-columns-7 th:nth-child(n + 7),
-    &.hide-columns-7 td:nth-child(n + 7) {
-      display: none;
+    @container (max-width: 300px) {
+      col:nth-child(n + 3),
+      th:nth-child(n + 3),
+      td:nth-child(n + 3) {
+        display: none;
+      }
+    }
+
+    /* Fallback for browsers without container query support */
+    @supports not (container-type: inline-size) {
+      @media (max-width: 600px) {
+        col:nth-child(n + 6),
+        th:nth-child(n + 6),
+        td:nth-child(n + 6) {
+          display: none;
+        }
+      }
+
+      @media (max-width: 500px) {
+        col:nth-child(n + 5),
+        th:nth-child(n + 5),
+        td:nth-child(n + 5) {
+          display: none;
+        }
+      }
+
+      @media (max-width: 400px) {
+        col:nth-child(n + 4),
+        th:nth-child(n + 4),
+        td:nth-child(n + 4) {
+          display: none;
+        }
+      }
+
+      @media (max-width: 300px) {
+        col:nth-child(n + 3),
+        th:nth-child(n + 3),
+        td:nth-child(n + 3) {
+          display: none;
+        }
+      }
     }
 
     .preview-root {
@@ -216,4 +268,10 @@ export const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
   width: 100%;
   opacity: 0;
   cursor: pointer;
+`;
+
+export const IndeterminateIndicator = styled.span`
+  font-size: 11px;
+  padding-left: 2px;
+  padding-right: 2px;
 `;
